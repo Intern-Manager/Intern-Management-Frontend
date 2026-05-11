@@ -4,31 +4,20 @@ import { Link } from 'react-router-dom';
 const LandingPage = () => {
   return (
     <div className="bg-surface text-on-surface antialiased overflow-x-hidden selection:bg-primary-fixed selection:text-on-primary-fixed">
-      {/* TopNavBar */}
       <header className="bg-surface/70 backdrop-blur-xl dark:bg-surface-dim/70 docked full-width top-0 sticky z-50 border-b border-white/20 dark:border-outline-variant/10 shadow-sm">
         <div className="flex justify-between items-center w-full px-container-margin py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-base">
             <span className="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">InternHub IMS</span>
           </div>
-          {/* <nav className="hidden md:flex items-center gap-gutter">
-            <a className="font-body-md text-body-md text-primary dark:text-primary-fixed font-semibold border-b-2 border-primary py-1" href="#">Platform</a>
-            <a className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary hover:bg-primary/5 transition-colors duration-200 py-1" href="#">Modules</a>
-            <a className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary hover:bg-primary/5 transition-colors duration-200 py-1" href="#">Solutions</a>
-            <a className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary hover:bg-primary/5 transition-colors duration-200 py-1" href="#">Pricing</a>
-          </nav> */}
           <div className="flex items-center gap-4">
             <Link to="/login" className="hidden lg:block px-6 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-all scale-95 active:opacity-80">
               Login
             </Link>
-            {/* <button className="px-6 py-2.5 rounded-lg primary-gradient font-label-md text-label-md text-white shadow-lg hover:shadow-indigo-500/20 transition-all scale-95 active:opacity-80">
-              Request Demo
-            </button> */}
           </div>
         </div>
       </header>
 
       <main className="hero-gradient">
-        {/* Hero Section */}
         <section className="relative pt-20 pb-32 overflow-hidden px-container-margin max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="z-10">
@@ -56,9 +45,9 @@ const LandingPage = () => {
               <div className="absolute -top-10 -right-10 w-64 h-64 bg-secondary-container/20 rounded-full blur-3xl"></div>
               <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-primary-container/20 rounded-full blur-3xl"></div>
               <div className="glass-card p-4 rounded-3xl relative overflow-hidden group">
-                <img 
-                  alt="IMS Dashboard Preview" 
-                  className="rounded-2xl shadow-2xl transition-transform duration-700 group-hover:scale-105" 
+                <img
+                  alt="IMS Dashboard Preview"
+                  className="rounded-2xl shadow-2xl transition-transform duration-700 group-hover:scale-105"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB_O9sancccf3S1Rnrt5ySvIYtTOddYh_GfxfglP4MQNdeipn3YJFzvdCZrj_unK6bnuILhrAsS9l__QLDpI7wWAoaXC7fK_MGyzGSAG3LBO89jjWnN07o5rDM0-3QU3uwzHFZfsu4y5tY1gQv3Fw7DhVr_Rb0_UPglnsL5Ds8ehRj1N7vmT2CiBAgE8X92hOxtdnIqZxRi5cpZUVFeLyGXDWn0vrLjOqCVnkUYBrj6PSlGCJv5chhrI8FL7kgYamm-F7Wevwmnhs"
                 />
               </div>
@@ -66,7 +55,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Trusted By Section */}
         <section className="py-16 bg-surface-container-low/50 backdrop-blur-sm border-y border-outline-variant/10 px-container-margin">
           <div className="max-w-7xl mx-auto">
             <p className="text-center font-label-sm text-label-sm text-outline mb-10 uppercase tracking-widest">Powering Innovation At</p>
@@ -80,7 +68,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Role-Based Modules Section (Bento Grid) */}
         <section className="py-24 px-container-margin max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">One Platform. Five Specialized Modules.</h2>
@@ -135,11 +122,9 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Key Features Section */}
         <section className="py-24 bg-white/40 border-y border-outline-variant/10 px-container-margin">
           <div className="max-w-7xl mx-auto">
             <div className="grid md:grid-cols-3 gap-gutter">
-              {/* Feature 1 */}
               <div className="p-widget-padding bg-white rounded-3xl shadow-sm border border-outline-variant/10 hover:shadow-xl transition-all duration-300">
                 <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center mb-8">
                   <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard_customize</span>
@@ -157,7 +142,6 @@ const LandingPage = () => {
                   </li>
                 </ul>
               </div>
-              {/* Feature 2 */}
               <div className="p-widget-padding bg-white rounded-3xl shadow-sm border border-outline-variant/10 hover:shadow-xl transition-all duration-300">
                 <div className="w-14 h-14 rounded-2xl bg-secondary/5 flex items-center justify-center mb-8">
                   <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>map</span>
@@ -175,7 +159,6 @@ const LandingPage = () => {
                   </li>
                 </ul>
               </div>
-              {/* Feature 3 */}
               <div className="p-widget-padding bg-white rounded-3xl shadow-sm border border-outline-variant/10 hover:shadow-xl transition-all duration-300">
                 <div className="w-14 h-14 rounded-2xl bg-tertiary/5 flex items-center justify-center mb-8">
                   <span className="material-symbols-outlined text-tertiary" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
@@ -197,7 +180,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Enterprise-Grade Section */}
         <section className="py-24 px-container-margin max-w-7xl mx-auto">
           <div className="glass-card rounded-[40px] p-12 overflow-hidden relative">
             <div className="absolute right-0 top-0 w-1/3 h-full bg-primary/5 -skew-x-12 transform translate-x-24"></div>
@@ -238,9 +220,9 @@ const LandingPage = () => {
                 </div>
               </div>
               <div className="relative flex justify-center">
-                <img 
-                  alt="Enterprise Security Illustration" 
-                  className="rounded-3xl shadow-2xl max-w-full" 
+                <img
+                  alt="Enterprise Security Illustration"
+                  className="rounded-3xl shadow-2xl max-w-full"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuBryW5-hND_wZK1DUVK7lSLN3l_SIei3OK96q6-6W7tNOVqzpCdOV7cThSZMlUf7Y5IEghRuOyM-ncpl0Wbyu1VqqZxABxtMwrF3O9ZLnrWPXf-fazsGNMv2VZ9EsZqwO-2-DwLkAoxV8bme-W4YB47TxRHKViax4O1u8wZ1whx3MC2j_tU0nCKmYIG4SCHmAroenNZ3M-gJfRpFv-4_pfz4Y4ukJEMntCsy_x1NrsqaGEErzmlFvVa_EwuV_WY799N42IMrRlkp7g"
                 />
               </div>
@@ -248,7 +230,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Final CTA Section */}
         <section className="py-24 px-container-margin text-center">
           <div className="max-w-4xl mx-auto glass-card p-16 rounded-[48px] primary-gradient text-white shadow-2xl">
             <h2 className="font-display-lg text-display-lg mb-6">Ready to transform your talent program?</h2>
@@ -261,7 +242,6 @@ const LandingPage = () => {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="bg-surface-container-lowest dark:bg-inverse-surface full-width bottom-0 border-t border-outline-variant/20 shadow-none">
         <div className="w-full px-container-margin py-widget-padding flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-base">
           <div className="flex flex-col items-center md:items-start gap-2">

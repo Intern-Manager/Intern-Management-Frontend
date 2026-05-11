@@ -13,23 +13,22 @@ import {
 
 const { Paragraph } = Typography;
 
+const learningResources = [
+  { title: 'Design Systems 101', desc: 'Master the art of building scalable UI components and tokens.', icon: <BookOutlined />, color: 'blue' },
+  { title: 'Advanced Figma Prototypes', desc: 'Complex animations and logic-based transitions.', icon: <VideoCameraOutlined />, color: 'cyan' },
+  { title: 'Cognitive Load in UI', desc: 'Understand how users process visual information.', icon: <BulbOutlined />, color: 'purple' },
+  { title: 'Future of Enterprise AI', desc: 'Interview with leading industry experts on AI UX.', icon: <AudioOutlined />, color: 'red' },
+];
+
+const events = [
+  { day: '24', month: 'OCT', title: 'Weekly Sync', time: '10:00 AM - 11:00 AM', type: 'Zoom' },
+  { day: '25', month: 'OCT', title: '1-on-1 Sarah', time: '02:30 PM - 03:00 PM', type: 'Office Room B' },
+  { day: '27', month: 'OCT', title: 'Hackathon Kickoff', time: 'All Day Event', type: 'Main Hall' },
+];
+
 const InternDashboard = () => {
-  const learningResources = [
-    { title: 'Design Systems 101', desc: 'Master the art of building scalable UI components and tokens.', icon: <BookOutlined />, color: 'blue' },
-    { title: 'Advanced Figma Prototypes', desc: 'Complex animations and logic-based transitions.', icon: <VideoCameraOutlined />, color: 'cyan' },
-    { title: 'Cognitive Load in UI', desc: 'Understand how users process visual information.', icon: <BulbOutlined />, color: 'purple' },
-    { title: 'Future of Enterprise AI', desc: 'Interview with leading industry experts on AI UX.', icon: <AudioOutlined />, color: 'red' },
-  ];
-
-  const events = [
-    { day: '24', month: 'OCT', title: 'Weekly Sync', time: '10:00 AM - 11:00 AM', type: 'Zoom' },
-    { day: '25', month: 'OCT', title: '1-on-1 Sarah', time: '02:30 PM - 03:00 PM', type: 'Office Room B' },
-    { day: '27', month: 'OCT', title: 'Hackathon Kickoff', time: 'All Day Event', type: 'Main Hall' },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Welcome Hero Section */}
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={16}>
           <div className="primary-gradient rounded-[32px] p-8 text-white relative overflow-hidden shadow-xl min-h-[240px] flex flex-col justify-center">
@@ -62,9 +61,9 @@ const InternDashboard = () => {
               <CheckCircleFilled className="text-primary text-xl" />
             </div>
             <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-2xl border border-blue-100">
-              <Avatar 
-                size={48} 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4DiXdFZwXfbqdYUqrQ3_a1kO7MY9Wvf9Qm9cGFzfsA5r44xqWsoZP-g5DNNlWmtAItQF6FXVaR7MCHT8iuhM4F0I0UAd3ZzGqgL8vw6VG7COvkjhRYb9ss6KM_MYUDAs768HRqmP5iH_cbC3-GjVYY6YSLBLWtxGfVr6ydZvjeenkv23-haRh4D8HuCBHfUJAkjcuRCyv-E1Mv6H-NvHWDX04R5vtmbB2IgcHh6t0cgzo4Tc0e67hq6u4hBpkPdHgGRNK7V9uwq4" 
+              <Avatar
+                size={48}
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4DiXdFZwXfbqdYUqrQ3_a1kO7MY9Wvf9Qm9cGFzfsA5r44xqWsoZP-g5DNNlWmtAItQF6FXVaR7MCHT8iuhM4F0I0UAd3ZzGqgL8vw6VG7COvkjhRYb9ss6KM_MYUDAs768HRqmP5iH_cbC3-GjVYY6YSLBLWtxGfVr6ydZvjeenkv23-haRh4D8HuCBHfUJAkjcuRCyv-E1Mv6H-NvHWDX04R5vtmbB2IgcHh6t0cgzo4Tc0e67hq6u4hBpkPdHgGRNK7V9uwq4"
                 className="border-2 border-white"
               />
               <div>
@@ -75,8 +74,8 @@ const InternDashboard = () => {
             <Paragraph className="italic text-gray-600 text-sm leading-relaxed mb-0">
               "Your latest wireframe iteration showed a deep understanding of user accessibility. Keep refining the interaction states!"
             </Paragraph>
-            <Button 
-              type="text" 
+            <Button
+              type="text"
               className="mt-auto text-primary p-0 h-auto font-bold flex items-center gap-2 hover:translate-x-1 transition-all w-fit"
             >
               View Full Report <ArrowRightOutlined />
@@ -85,7 +84,6 @@ const InternDashboard = () => {
         </Col>
       </Row>
 
-      {/* Bento Grid: Analytics & Kanban */}
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={8}>
           <div className="glass-card rounded-[32px] p-8 h-full border border-white/50">
@@ -96,28 +94,28 @@ const InternDashboard = () => {
                   <span className="font-semibold text-gray-700">Visual Design</span>
                   <span className="text-primary font-bold">85%</span>
                 </div>
-                <Progress percent={85} showInfo={false} strokeColor="#3525cd" trailColor="#eceef0" size={12} />
+                <Progress percent={85} showInfo={false} strokeColor="#3525cd" railColor="#eceef0" size={12} />
               </div>
               <div>
                 <div className="flex justify-between mb-3">
                   <span className="font-semibold text-gray-700">User Research</span>
                   <span className="text-secondary font-bold">60%</span>
                 </div>
-                <Progress percent={60} showInfo={false} strokeColor="#00687a" trailColor="#eceef0" size={12} />
+                <Progress percent={60} showInfo={false} strokeColor="#00687a" railColor="#eceef0" size={12} />
               </div>
               <div>
                 <div className="flex justify-between mb-3">
                   <span className="font-semibold text-gray-700">Prototyping</span>
                   <span className="text-primary font-bold">92%</span>
                 </div>
-                <Progress percent={92} showInfo={false} strokeColor="#3525cd" trailColor="#eceef0" size={12} />
+                <Progress percent={92} showInfo={false} strokeColor="#3525cd" railColor="#eceef0" size={12} />
               </div>
               <div>
                 <div className="flex justify-between mb-3">
                   <span className="font-semibold text-gray-700">Collaboration</span>
                   <span className="text-gray-400 font-bold">78%</span>
                 </div>
-                <Progress percent={78} showInfo={false} strokeColor="#41485e" trailColor="#eceef0" size={12} />
+                <Progress percent={78} showInfo={false} strokeColor="#41485e" railColor="#eceef0" size={12} />
               </div>
             </div>
           </div>
@@ -199,7 +197,7 @@ const InternDashboard = () => {
                 <Col xs={24} md={12} key={index}>
                   <div className="flex gap-4 p-4 rounded-[20px] hover:bg-gray-50 transition-colors cursor-pointer group border border-transparent hover:border-gray-100">
                     <div className={`w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-primary-container group-hover:text-white transition-colors`}>
-                      {React.cloneElement(res.icon, { style: { fontSize: '24px' } })}
+                      {React.cloneElement(res.icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { fontSize: '24px' } })}
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-800 mb-1 group-hover:text-primary transition-colors">{res.title}</h4>

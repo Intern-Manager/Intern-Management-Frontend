@@ -17,9 +17,9 @@ const AccessDenied = () => {
           </div>
         }
         extra={
-          <Button 
-            type="primary" 
-            size="large" 
+          <Button
+            type="primary"
+            size="large"
             className="rounded-xl primary-gradient border-none px-8"
             onClick={() => navigate('/dashboard')}
           >

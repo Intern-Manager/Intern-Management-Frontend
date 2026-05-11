@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { Table, Tag, Space, Button, Input, Card, Typography, Breadcrumb, Avatar } from 'antd';
-import { 
-  SearchOutlined, 
-  PlusOutlined, 
-  FilterOutlined, 
+import {
+  SearchOutlined,
+  PlusOutlined,
+  FilterOutlined,
   MoreOutlined,
-  UserOutlined 
+  UserOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
+
+interface InternRecord {
+  key: string;
+  name: string;
+  email: string;
+  department: string;
+  mentor: string;
+  duration: string;
+  status: string;
+}
 
 const InternList = () => {
   const [searchText, setSearchText] = useState('');
@@ -18,7 +28,7 @@ const InternList = () => {
       title: 'Intern',
       dataIndex: 'name',
       key: 'name',
-      render: (text, record) => (
+      render: (text: string, record: InternRecord) => (
         <Space>
           <Avatar icon={<UserOutlined />} className="bg-primary/10 text-primary" />
           <div className="flex flex-col">
@@ -47,7 +57,7 @@ const InternList = () => {
       title: 'Status',
       key: 'status',
       dataIndex: 'status',
-      render: (status) => {
+      render: (status: string) => {
         let color = status === 'Active' ? 'success' : 'processing';
         if (status === 'Completed') color = 'default';
         if (status === 'Paused') color = 'warning';
@@ -61,7 +71,7 @@ const InternList = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, record) => (
+      render: (_: unknown, record: InternRecord) => (
         <Space size="middle">
           <Button type="text" icon={<MoreOutlined />} />
         </Space>
@@ -69,63 +79,23 @@ const InternList = () => {
     },
   ];
 
-  const data = [
-    {
-      key: '1',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      department: 'Engineering',
-      mentor: 'Alex Johnson',
-      duration: '3 Months',
-      status: 'Active',
-    },
-    {
-      key: '2',
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      department: 'Design',
-      mentor: 'Sarah Parker',
-      duration: '6 Months',
-      status: 'Active',
-    },
-    {
-      key: '3',
-      name: 'Michael Brown',
-      email: 'michael.b@example.com',
-      department: 'Marketing',
-      mentor: 'David Lee',
-      duration: '3 Months',
-      status: 'Completed',
-    },
-    {
-      key: '4',
-      name: 'Alice Wilson',
-      email: 'alice.w@example.com',
-      department: 'Engineering',
-      mentor: 'Alex Johnson',
-      duration: '3 Months',
-      status: 'Paused',
-    },
-    {
-      key: '5',
-      name: 'Robert Miller',
-      email: 'robert.m@example.com',
-      department: 'Sales',
-      mentor: 'Chris Evans',
-      duration: '6 Months',
-      status: 'Active',
-    },
+  const data: InternRecord[] = [
+    { key: '1', name: 'John Doe', email: 'john.doe@example.com', department: 'Engineering', mentor: 'Alex Johnson', duration: '3 Months', status: 'Active' },
+    { key: '2', name: 'Jane Smith', email: 'jane.smith@example.com', department: 'Design', mentor: 'Sarah Parker', duration: '6 Months', status: 'Active' },
+    { key: '3', name: 'Michael Brown', email: 'michael.b@example.com', department: 'Marketing', mentor: 'David Lee', duration: '3 Months', status: 'Completed' },
+    { key: '4', name: 'Alice Wilson', email: 'alice.w@example.com', department: 'Engineering', mentor: 'Alex Johnson', duration: '3 Months', status: 'Paused' },
+    { key: '5', name: 'Robert Miller', email: 'robert.m@example.com', department: 'Sales', mentor: 'Chris Evans', duration: '6 Months', status: 'Active' },
   ];
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <Breadcrumb 
+          <Breadcrumb
             items={[
               { title: 'Dashboard' },
               { title: 'Interns' },
-            ]} 
+            ]}
           />
           <Title level={2} className="m-0 mt-1">Manage Interns</Title>
         </div>
@@ -150,12 +120,12 @@ const InternList = () => {
           </Space>
         </div>
 
-        <Table 
-          columns={columns} 
-          dataSource={data.filter(item => 
-            item.name.toLowerCase().includes(searchText.toLowerCase()) || 
+        <Table
+          columns={columns}
+          dataSource={data.filter(item =>
+            item.name.toLowerCase().includes(searchText.toLowerCase()) ||
             item.email.toLowerCase().includes(searchText.toLowerCase())
-          )} 
+          )}
           pagination={{ pageSize: 10 }}
         />
       </Card>

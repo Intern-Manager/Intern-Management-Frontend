@@ -1,9 +1,7 @@
 import React from 'react';
-import { Row, Col, Progress, Avatar, Tag, Button, List, Typography, Badge } from 'antd';
+import { Row, Col, Progress, Avatar, Tag, Button, Typography, Badge } from 'antd';
 import {
   UserOutlined,
-  CheckCircleFilled,
-  ClockCircleOutlined,
   MessageOutlined,
   EditOutlined,
   StarFilled,
@@ -12,22 +10,21 @@ import {
 
 const { Text } = Typography;
 
+const mentees = [
+  { name: 'Alex Johnson', role: 'UI/UX Design', progress: 85, lastActive: '2h ago', avatar: 'https://i.pravatar.cc/150?u=a' },
+  { name: 'Sarah Miller', role: 'Frontend Dev', progress: 62, lastActive: '5h ago', avatar: 'https://i.pravatar.cc/150?u=s' },
+  { name: 'David Chen', role: 'Product Management', progress: 45, lastActive: '1d ago', avatar: 'https://i.pravatar.cc/150?u=d' },
+];
+
+const pendingReviews = [
+  { title: 'Final Prototype Review', intern: 'Alex Johnson', due: 'Today', priority: 'High' },
+  { title: 'Code Audit - Auth Module', intern: 'Sarah Miller', due: 'Tomorrow', priority: 'Medium' },
+  { title: 'Project Proposal Feedback', intern: 'David Chen', due: 'Oct 28', priority: 'Low' },
+];
+
 const MentorDashboard = () => {
-  const mentees = [
-    { name: 'Alex Johnson', role: 'UI/UX Design', progress: 85, lastActive: '2h ago', avatar: 'https://i.pravatar.cc/150?u=a' },
-    { name: 'Sarah Miller', role: 'Frontend Dev', progress: 62, lastActive: '5h ago', avatar: 'https://i.pravatar.cc/150?u=s' },
-    { name: 'David Chen', role: 'Product Management', progress: 45, lastActive: '1d ago', avatar: 'https://i.pravatar.cc/150?u=d' },
-  ];
-
-  const pendingReviews = [
-    { title: 'Final Prototype Review', intern: 'Alex Johnson', due: 'Today', priority: 'High' },
-    { title: 'Code Audit - Auth Module', intern: 'Sarah Miller', due: 'Tomorrow', priority: 'Medium' },
-    { title: 'Project Proposal Feedback', intern: 'David Chen', due: 'Oct 28', priority: 'Low' },
-  ];
-
   return (
     <div className="space-y-8">
-      {/* Mentor Hero */}
       <div className="main-gradient rounded-[32px] p-8 text-dark relative overflow-hidden shadow-xl">
         <div className="relative z-10 flex justify-between items-center">
           <div>
@@ -51,7 +48,6 @@ const MentorDashboard = () => {
       </div>
 
       <Row gutter={[24, 24]}>
-        {/* Mentees Progress */}
         <Col xs={24} lg={16}>
           <div className="glass-card p-8 rounded-[32px] border border-white/50 h-full">
             <div className="flex justify-between items-center mb-8">
@@ -66,7 +62,7 @@ const MentorDashboard = () => {
                   </Badge>
                   <div className="flex-1 text-center md:text-left">
                     <h4 className="font-bold text-lg text-gray-800 mb-0">{mentee.name}</h4>
-                    <p className="text-xs text-gray-500 mb-2">{mentee.role} • Active {mentee.lastActive}</p>
+                    <p className="text-xs text-gray-500 mb-2">{mentee.role} - Active {mentee.lastActive}</p>
                     <Progress percent={mentee.progress} strokeColor="#3525cd" size={8} />
                   </div>
                   <div className="flex gap-2">
@@ -80,7 +76,6 @@ const MentorDashboard = () => {
           </div>
         </Col>
 
-        {/* Pending Reviews */}
         <Col xs={24} lg={8}>
           <div className="glass-card p-8 rounded-[32px] border border-white/50 h-full flex flex-col">
             <h3 className="text-xl font-bold mb-6">Pending Reviews</h3>

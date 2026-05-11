@@ -16,59 +16,33 @@ import {
   MenuOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
+
+const menuItems = [
+  { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+  { key: '/recruitment', icon: <UserAddOutlined />, label: 'Recruitment' },
+  { key: '/interns', icon: <TeamOutlined />, label: 'Interns' },
+  { key: '/mentors', icon: <UserOutlined />, label: 'Mentors' },
+  { key: '/evaluations', icon: <FileTextOutlined />, label: 'Evaluations' },
+  { key: '/reports', icon: <BarChartOutlined />, label: 'Reports' },
+];
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const menuItems = [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-    },
-    {
-      key: '/recruitment',
-      icon: <UserAddOutlined />,
-      label: 'Recruitment',
-    },
-    {
-      key: '/interns',
-      icon: <TeamOutlined />,
-      label: 'Interns',
-    },
-    {
-      key: '/mentors',
-      icon: <UserOutlined />,
-      label: 'Mentors',
-    },
-    {
-      key: '/evaluations',
-      icon: <FileTextOutlined />,
-      label: 'Evaluations',
-    },
-    {
-      key: '/reports',
-      icon: <BarChartOutlined />,
-      label: 'Reports',
-    },
-  ];
+  const { logout } = useAuth();
 
   const userMenuItems = [
-    {
-      key: 'profile',
-      label: 'Profile',
-      icon: <UserOutlined />,
-    },
+    { key: 'profile', label: 'Profile', icon: <UserOutlined /> },
     {
       key: 'logout',
       label: 'Logout',
       icon: <LogoutOutlined />,
       danger: true,
-      onClick: () => navigate('/login'),
+      onClick: logout,
     },
   ];
 
@@ -85,15 +59,15 @@ const MainLayout = () => {
       >
         <div className="flex flex-col mb-8 px-4 overflow-hidden">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                <span className="text-white font-black text-xl">I</span>
-             </div>
-             {!collapsed && (
-               <div className="animate-fadeIn">
-                 <h1 className="text-xl font-black text-primary leading-none">IMS System</h1>
-                 <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">Enterprise Admin</p>
-               </div>
-             )}
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+              <span className="text-white font-black text-xl">I</span>
+            </div>
+            {!collapsed && (
+              <div>
+                <h1 className="text-xl font-black text-primary leading-none">IMS System</h1>
+                <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">Enterprise Admin</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -109,7 +83,7 @@ const MainLayout = () => {
                   : 'text-gray-500 hover:text-primary hover:bg-gray-50'
                   }`}
               >
-                {React.cloneElement(item.icon, { style: { fontSize: '20px' } })}
+                {React.cloneElement(item.icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { fontSize: '20px' } })}
                 {!collapsed && <span className="font-semibold whitespace-nowrap">{item.label}</span>}
               </div>
             );
@@ -135,7 +109,7 @@ const MainLayout = () => {
             {!collapsed && <span className="text-sm font-medium">Support</span>}
           </div>
           <div
-            onClick={() => navigate('/login')}
+            onClick={() => { logout(); navigate('/login'); }}
             className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-4'} py-2 text-gray-500 hover:text-red-500 cursor-pointer transition-colors`}
           >
             <LogoutOutlined style={{ fontSize: '20px' }} />
@@ -200,7 +174,6 @@ const MainLayout = () => {
         </Content>
       </Layout>
 
-      {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/70 backdrop-blur-[40px] flex justify-around items-center z-50 border-t border-gray-100 px-4">
         <div className="flex flex-col items-center text-gray-400">
           <DashboardOutlined style={{ fontSize: '20px' }} />
@@ -220,7 +193,6 @@ const MainLayout = () => {
         </div>
       </nav>
 
-      {/* FAB */}
       <button className="fixed bottom-20 right-6 md:bottom-10 md:right-10 w-14 h-14 primary-gradient rounded-full shadow-2xl flex items-center justify-center text-white active:scale-95 duration-200 z-40">
         <PlusCircleOutlined style={{ fontSize: '24px' }} />
       </button>
