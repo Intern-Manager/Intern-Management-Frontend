@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "ci:build": "npm run build --if-present",
     "lint": "eslint .",
     "preview": "vite preview"
   },
