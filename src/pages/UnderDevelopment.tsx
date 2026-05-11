@@ -8,7 +8,6 @@ const UnderDevelopment = () => {
 
   return (
     <div className="h-full flex items-center justify-center p-8 bg-white/30 backdrop-blur-xl rounded-[32px] border border-white/50 shadow-xl overflow-hidden relative">
-      {/* Decorative background elements */}
       <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-[-10%] left-[-10%] w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
 
@@ -29,17 +28,17 @@ const UnderDevelopment = () => {
         }
         extra={
           <Space size="middle" className="mt-8">
-            <Button 
+            <Button
               icon={<ArrowLeftOutlined />}
-              size="large" 
+              size="large"
               className="rounded-xl border-gray-200 hover:border-primary hover:text-primary transition-all font-bold px-6"
               onClick={() => navigate(-1)}
             >
               Go Back
             </Button>
-            <Button 
-              type="primary" 
-              size="large" 
+            <Button
+              type="primary"
+              size="large"
               className="rounded-xl primary-gradient border-none px-8 font-bold shadow-lg shadow-primary/20"
               onClick={() => navigate('/dashboard')}
             >

@@ -1,20 +1,57 @@
-import React from 'react';
-import { Form, Input, Button, Checkbox, Divider, message } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Checkbox, Divider } from 'antd';
+import useApp from 'antd/es/app/useApp';
 import { MailOutlined, LockOutlined, LoginOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
+import { ROLE_ROUTES } from '../contexts/AuthContext';
 
 const Login = () => {
+  const { message } = useApp();
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const onFinish = (values) => {
-    console.log('Success:', values);
-    message.success('Login successful!');
-    navigate('/dashboard');
+  const onFinish = async (values: { email: string; password: string }) => {
+    setLoading(true);
+    try {
+      const response = await authService.login(values.email, values.password);
+      const data = response.data;
+
+      if (!data.tokens) {
+        message.error(data.message ?? 'Unexpected response from server.');
+        setLoading(false);
+        return;
+      }
+
+      login(
+        {
+          userId: data.userId,
+          fullName: data.fullName,
+          email: data.email,
+          roleId: data.roleId,
+          status: data.status,
+          emailVerified: data.emailVerified,
+        },
+        data.tokens.accessToken,
+        data.tokens.refreshToken
+      );
+      message.success('Login successful!');
+      const redirect = ROLE_ROUTES[data.roleId] ?? '/dashboard';
+      navigate(redirect);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      const msg = error.response?.data?.message ?? error.message ?? 'Login failed. Please check your credentials.';
+      message.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="bg-login-gradient min-h-screen flex flex-col justify-between overflow-hidden">
-      {/* Header / Brand Section */}
+      {null}
       <header className="p-[32px]">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-white shadow-lg">
@@ -33,18 +70,13 @@ const Login = () => {
         </div>
       </header>
 
-      {/* Main Login Content */}
       <main className="flex-grow flex items-center justify-center px-6">
         <div className="glass-card w-full max-w-[480px] p-10 rounded-2xl relative overflow-hidden">
-          {/* Subtle background accent inside card */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#3525cd]/10 blur-3xl rounded-full"></div>
 
           <div className="relative z-10">
             <div className="mb-10 text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-              {/* <p className="text-gray-500">
-                Access your dashboard to manage mentorship and recruitment operations.
-              </p> */}
             </div>
 
             <Form
@@ -101,6 +133,7 @@ const Login = () => {
                   htmlType="submit"
                   className="w-full h-[54px] rounded-xl text-lg font-bold shadow-lg shadow-[#3525cd]/20"
                   icon={<LoginOutlined />}
+                  loading={loading}
                 >
                   Sign In
                 </Button>
@@ -125,11 +158,17 @@ const Login = () => {
                 Google
               </Button>
             </div>
+
+            <div className="mt-6 text-center text-sm text-gray-500">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-primary font-semibold hover:underline">
+                Sign Up Now
+              </Link>
+            </div>
           </div>
         </div>
       </main>
 
-      {/* Footer Content */}
       <footer className="p-[32px] flex flex-col md:flex-row justify-between items-center gap-4 border-t border-gray-100 bg-white/30 backdrop-blur-sm">
         <div className="text-gray-500 text-xs">
           © 2024 IMS Portal Enterprise Edition. All rights reserved.
@@ -148,7 +187,6 @@ const Login = () => {
         </div>
       </footer>
 
-      {/* Decorative background elements */}
       <div className="fixed top-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-[#3525cd]/5 blur-[120px] -z-10"></div>
       <div className="fixed bottom-[-10%] left-[-5%] w-[30vw] h-[30vw] rounded-full bg-[#acedff]/5 blur-[120px] -z-10"></div>
     </div>

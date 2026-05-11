@@ -1,31 +1,27 @@
 import React from 'react';
-import { Row, Col, Card, Avatar, Tag, Button, List, Timeline, Progress } from 'antd';
+import { Row, Col, Avatar, Tag, Button, Timeline, Progress } from 'antd';
 import {
   CalendarOutlined,
   TeamOutlined,
   SolutionOutlined,
-  NotificationOutlined,
-  CheckCircleFilled,
-  ClockCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 
+const activeBatches = [
+  { name: 'Summer 2024 - Batch A', progress: 65, interns: 24, mentors: 8 },
+  { name: 'Summer 2024 - Batch B', progress: 40, interns: 30, mentors: 10 },
+  { name: 'Winter 2023 - Final', progress: 100, interns: 15, mentors: 5 },
+];
+
+const pendingTasks = [
+  { id: 1, task: 'Assign Mentors to Batch B', priority: 'High', due: 'Tomorrow' },
+  { id: 2, task: 'Review Mid-term Evaluations', priority: 'Medium', due: 'In 2 days' },
+  { id: 3, task: 'Onboard 5 New Interns', priority: 'High', due: 'Today' },
+];
+
 const CoordinatorDashboard = () => {
-  const activeBatches = [
-    { name: 'Summer 2024 - Batch A', progress: 65, interns: 24, mentors: 8 },
-    { name: 'Summer 2024 - Batch B', progress: 40, interns: 30, mentors: 10 },
-    { name: 'Winter 2023 - Final', progress: 100, interns: 15, mentors: 5 },
-  ];
-
-  const pendingTasks = [
-    { id: 1, task: 'Assign Mentors to Batch B', priority: 'High', due: 'Tomorrow' },
-    { id: 2, task: 'Review Mid-term Evaluations', priority: 'Medium', due: 'In 2 days' },
-    { id: 3, task: 'Onboard 5 New Interns', priority: 'High', due: 'Today' },
-  ];
-
   return (
     <div className="space-y-8">
-      {/* Coordinator Header */}
       <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
         <div>
           <h1 className="text-3xl font-black text-gray-800">Program Coordination</h1>
@@ -38,7 +34,6 @@ const CoordinatorDashboard = () => {
       </div>
 
       <Row gutter={[24, 24]}>
-        {/* Active Batches */}
         <Col xs={24} lg={16}>
           <div className="glass-card p-8 rounded-[32px] border border-white/50 h-full">
             <h3 className="text-xl font-bold mb-6">Active Batches</h3>
@@ -74,7 +69,6 @@ const CoordinatorDashboard = () => {
           </div>
         </Col>
 
-        {/* Action Items */}
         <Col xs={24} lg={8}>
           <div className="glass-card p-8 rounded-[32px] border border-white/50 h-full">
             <h3 className="text-xl font-bold mb-6">Priority Tasks</h3>
@@ -98,7 +92,6 @@ const CoordinatorDashboard = () => {
       </Row>
 
       <Row gutter={[24, 24]}>
-        {/* Timeline */}
         <Col xs={24}>
           <div className="glass-card p-8 rounded-[32px] border border-white/50">
             <h3 className="text-xl font-bold mb-8">Program Timeline</h3>
