@@ -80,7 +80,9 @@ const Register = () => {
                 name="fullName"
                 rules={[
                   { required: true, message: 'Please input your full name!' },
-                  { min: 2, message: 'Name must be at least 2 characters!' }
+                  { min: 2, message: 'Name must be at least 2 characters!' },
+                  { max: 100, message: 'Name must not exceed 100 characters!' },
+                  { pattern: /^[a-zA-ZÀ-ỹ\s]+$/, message: 'Name can only contain letters and spaces!' }
                 ]}
               >
                 <Input
@@ -109,12 +111,12 @@ const Register = () => {
                 label="Phone Number"
                 name="phone"
                 rules={[
-                  { pattern: /^[\d\s\-+()]{10,}$/, message: 'Please enter a valid phone number!' }
+                  { pattern: /^[0-9]{10,20}$/, message: 'Phone must be 10-20 digits, numbers only!' }
                 ]}
               >
                 <Input
                   prefix={<PhoneOutlined className="text-gray-400" />}
-                  placeholder="+84 123 456 789"
+                  placeholder="0123456789"
                   className="rounded-xl py-3"
                 />
               </Form.Item>
@@ -124,7 +126,8 @@ const Register = () => {
                 name="password"
                 rules={[
                   { required: true, message: 'Please input your password!' },
-                  { min: 6, message: 'Password must be at least 6 characters!' }
+                  { min: 6, message: 'Password must be at least 6 characters!' },
+                  { max: 100, message: 'Password must not exceed 100 characters!' }
                 ]}
               >
                 <Input.Password

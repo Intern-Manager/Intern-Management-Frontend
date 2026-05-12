@@ -28,13 +28,13 @@ const events = [
 
 const InternDashboard = () => {
   return (
-    <div className="space-y-6">
-      <Row gutter={[24, 24]}>
+    <div className="space-y-3">
+      <Row gutter={[16, 16]}>
         <Col xs={24} lg={16}>
-          <div className="primary-gradient rounded-[32px] p-8 text-white relative overflow-hidden shadow-xl min-h-[240px] flex flex-col justify-center">
+          <div className="primary-gradient rounded-3xl p-6 text-white relative overflow-hidden shadow-xl min-h-[200px] flex flex-col justify-center">
             <div className="relative z-10">
-              <h1 className="text-4xl font-bold mb-2 text-white">Welcome back, Alex!</h1>
-              <p className="text-lg opacity-90 max-w-lg mb-8">
+              <h1 className="text-2xl font-bold mb-2 text-white">Welcome back, Alex!</h1>
+              <p className="text-sm opacity-90 max-w-lg mb-6">
                 You are making incredible progress in your UI/UX Design internship. Only 4 weeks left until your final evaluation!
               </p>
               <div className="flex gap-4">
@@ -55,9 +55,9 @@ const InternDashboard = () => {
         </Col>
 
         <Col xs={24} lg={8}>
-          <div className="glass-card rounded-[32px] p-6 h-full flex flex-col gap-4 border border-white/50">
+          <div className="glass-card rounded-3xl p-5 h-full flex flex-col gap-3 border border-white/50">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-primary">Mentor Feedback</h3>
+              <h3 className="text-lg font-bold text-primary">Mentor Feedback</h3>
               <CheckCircleFilled className="text-primary text-xl" />
             </div>
             <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-2xl border border-blue-100">
@@ -84,34 +84,34 @@ const InternDashboard = () => {
         </Col>
       </Row>
 
-      <Row gutter={[24, 24]}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} lg={8}>
-          <div className="glass-card rounded-[32px] p-8 h-full border border-white/50">
-            <h3 className="text-xl font-bold mb-8">Skill Growth</h3>
-            <div className="space-y-8">
+          <div className="glass-card rounded-3xl p-6 h-full border border-white/50">
+            <h3 className="text-lg font-bold mb-6">Skill Growth</h3>
+            <div className="space-y-6">
               <div>
-                <div className="flex justify-between mb-3">
+                <div className="flex justify-between mb-2">
                   <span className="font-semibold text-gray-700">Visual Design</span>
                   <span className="text-primary font-bold">85%</span>
                 </div>
                 <Progress percent={85} showInfo={false} strokeColor="#3525cd" railColor="#eceef0" size={12} />
               </div>
               <div>
-                <div className="flex justify-between mb-3">
+                <div className="flex justify-between mb-2">
                   <span className="font-semibold text-gray-700">User Research</span>
                   <span className="text-secondary font-bold">60%</span>
                 </div>
                 <Progress percent={60} showInfo={false} strokeColor="#00687a" railColor="#eceef0" size={12} />
               </div>
               <div>
-                <div className="flex justify-between mb-3">
+                <div className="flex justify-between mb-2">
                   <span className="font-semibold text-gray-700">Prototyping</span>
                   <span className="text-primary font-bold">92%</span>
                 </div>
                 <Progress percent={92} showInfo={false} strokeColor="#3525cd" railColor="#eceef0" size={12} />
               </div>
               <div>
-                <div className="flex justify-between mb-3">
+                <div className="flex justify-between mb-2">
                   <span className="font-semibold text-gray-700">Collaboration</span>
                   <span className="text-gray-400 font-bold">78%</span>
                 </div>
@@ -122,9 +122,9 @@ const InternDashboard = () => {
         </Col>
 
         <Col xs={24} lg={16}>
-          <div className="glass-card rounded-[32px] p-8 h-full border border-white/50 overflow-hidden">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-bold">Task Management</h3>
+          <div className="glass-card rounded-3xl p-6 h-full border border-white/50 overflow-hidden">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold">Task Management</h3>
               <Button type="text" icon={<FilterOutlined />} className="bg-gray-100 rounded-xl" />
             </div>
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
@@ -185,11 +185,11 @@ const InternDashboard = () => {
         </Col>
       </Row>
 
-      <Row gutter={[24, 24]}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} lg={16}>
-          <div className="glass-card rounded-[32px] p-8 h-full border border-white/50">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-bold">Learning Hub</h3>
+          <div className="glass-card rounded-3xl p-6 h-full border border-white/50">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold">Learning Hub</h3>
               <Button type="link" className="font-bold p-0">Browse All</Button>
             </div>
             <Row gutter={[16, 16]}>
@@ -211,9 +211,9 @@ const InternDashboard = () => {
         </Col>
 
         <Col xs={24} lg={8}>
-          <div className="glass-card rounded-[32px] p-8 h-full flex flex-col border border-white/50">
-            <h3 className="text-xl font-bold mb-8">Upcoming Events</h3>
-            <div className="space-y-6 flex-1">
+          <div className="glass-card rounded-3xl p-6 h-full flex flex-col border border-white/50">
+            <h3 className="text-lg font-bold mb-6">Upcoming Events</h3>
+            <div className="space-y-4 flex-1">
               {events.map((event, index) => (
                 <div key={index} className="flex gap-4 items-start">
                   <div className="flex flex-col items-center bg-gray-100 rounded-xl p-2 min-w-[56px] border border-gray-50">
@@ -230,7 +230,7 @@ const InternDashboard = () => {
                 </div>
               ))}
             </div>
-            <Button block className="mt-8 h-12 rounded-xl font-bold border-gray-200 hover:border-primary hover:text-primary transition-all">
+            <Button block className="mt-6 h-12 rounded-xl font-bold border-gray-200 hover:border-primary hover:text-primary transition-all">
               Open Calendar
             </Button>
           </div>

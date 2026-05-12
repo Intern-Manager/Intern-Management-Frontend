@@ -1,42 +1,53 @@
-import React, { useState } from 'react';
-import { Layout, Button, Badge, Dropdown, Avatar, Input } from 'antd';
+import React from 'react';
+import { Layout, Button, Badge, Dropdown, Avatar } from 'antd';
 import {
   DashboardOutlined,
-  UserAddOutlined,
-  TeamOutlined,
-  UserOutlined,
-  FileTextOutlined,
-  BarChartOutlined,
-  QuestionCircleOutlined,
-  LogoutOutlined,
-  SearchOutlined,
   BellOutlined,
   SettingOutlined,
-  PlusCircleOutlined,
-  MenuOutlined,
+  QuestionCircleOutlined,
+  LogoutOutlined,
+  HistoryOutlined,
+  BuildOutlined,
+  UserOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 
-const menuItems = [
-  { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-  { key: '/recruitment', icon: <UserAddOutlined />, label: 'Recruitment' },
-  { key: '/interns', icon: <TeamOutlined />, label: 'Interns' },
-  { key: '/mentors', icon: <UserOutlined />, label: 'Mentors' },
-  { key: '/evaluations', icon: <FileTextOutlined />, label: 'Evaluations' },
-  { key: '/reports', icon: <BarChartOutlined />, label: 'Reports' },
+const headerTabs = [
+  { key: '/admin/dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
+  { key: '/admin/users', label: 'User Management', icon: <BuildOutlined /> },
+  { key: '/admin/departments', label: 'Departments', icon: <BuildOutlined /> },
+  { key: '/admin/config', label: 'System Config', icon: <SettingOutlined /> },
+  { key: '/admin/logs', label: 'Audit Log', icon: <HistoryOutlined /> },
 ];
 
+const chatTab = { key: '/chat', label: 'Chat', icon: <MessageOutlined /> };
+
 const MainLayout = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+
+  // Determine active tab based on current path
+  const activeTab = headerTabs.find(tab => location.pathname.startsWith(tab.key))?.key || '/admin/dashboard';
+
+  // Show chat tab for Intern, Mentor, and Coordinator roles (3, 4, 5)
+  const showChatTab = user && [3, 4, 5].includes(user.roleId);
 
   const userMenuItems = [
-    { key: 'profile', label: 'Profile', icon: <UserOutlined /> },
+    {
+      key: 'profile',
+      label: 'Profile',
+      icon: <UserOutlined />,
+      onClick: () => {
+        if (user) {
+          navigate(`/profile/${user.userId}`);
+        }
+      },
+    },
     {
       key: 'logout',
       label: 'Logout',
@@ -48,153 +59,87 @@ const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        width={220}
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        theme="light"
-        className="hidden md:block fixed left-0 top-0 h-screen bg-white shadow-lg z-50 transition-all duration-300"
-        style={{ padding: collapsed ? '24px 0' : '24px' }}
+      <Header
+        style={{
+          padding: '0 24px',
+          background: 'white',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          height: '64px',
+        }}
       >
-        <div className="flex flex-col mb-8 px-4 overflow-hidden">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-              <span className="text-white font-black text-xl">I</span>
+        {/* Logo */}
+        <div className="flex items-center">
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => navigate('/admin/dashboard')}
+          >
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-white font-black text-lg">I</span>
             </div>
-            {!collapsed && (
-              <div>
-                <h1 className="text-xl font-black text-primary leading-none">IMS System</h1>
-                <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">Enterprise Admin</p>
-              </div>
+            <span className="text-primary font-bold text-lg hidden md:inline">Intern</span>
+          </div>
+        </div>
+
+        {/* Tabs in Header */}
+        <div className="flex-1 flex justify-center">
+          <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+            {headerTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => navigate(tab.key)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === tab.key
+                    ? 'bg-white text-primary shadow-sm'
+                    : 'text-slate-500 hover:text-primary'
+                }`}
+              >
+                {React.cloneElement(tab.icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { fontSize: '16px' } })}
+                <span className="hidden lg:inline">{tab.label}</span>
+              </button>
+            ))}
+            {showChatTab && (
+              <button
+                onClick={() => navigate(chatTab.key)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  location.pathname.startsWith(chatTab.key)
+                    ? 'bg-white text-primary shadow-sm'
+                    : 'text-slate-500 hover:text-primary'
+                }`}
+              >
+                {React.cloneElement(chatTab.icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { fontSize: '16px' } })}
+                <span className="hidden lg:inline">{chatTab.label}</span>
+              </button>
             )}
           </div>
         </div>
 
-        <nav className="flex flex-col gap-1 mb-6 px-2">
-          {menuItems.map((item) => {
-            const isActive = location.pathname === item.key;
-            return (
-              <div
-                key={item.key}
-                onClick={() => navigate(item.key)}
-                className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-4'} py-3 cursor-pointer rounded-xl transition-all duration-200 ${isActive
-                  ? 'bg-primary text-white shadow-md shadow-primary/20'
-                  : 'text-slate-500 hover:text-primary hover:bg-slate-50'
-                  }`}
-              >
-                {React.cloneElement(item.icon as React.ReactElement<{ style?: React.CSSProperties }>, { style: { fontSize: '20px' } })}
-                {!collapsed && <span className="font-semibold whitespace-nowrap">{item.label}</span>}
-              </div>
-            );
-          })}
-        </nav>
-
-        {!collapsed && (
-          <div className="px-2 mb-8">
-            <Button
-              type="primary"
-              size="large"
-              className="w-full h-12 rounded-xl primary-gradient border-none flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
-              icon={<PlusCircleOutlined />}
-            >
-              Post New Role
-            </Button>
+        {/* Right Side */}
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1">
+            <Badge dot color="#4f46e5" offset={[-2, 2]}>
+              <Button type="text" icon={<BellOutlined />} className="text-slate-500 text-lg hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center" />
+            </Badge>
+            <Button type="text" icon={<QuestionCircleOutlined />} className="text-slate-500 text-lg hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center" />
           </div>
-        )}
-
-        <div className="mt-4 border-t border-slate-100 pt-4 flex flex-col gap-1 px-2">
-          <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-4'} py-2 text-slate-500 hover:text-primary cursor-pointer transition-colors`}>
-            <QuestionCircleOutlined style={{ fontSize: '20px' }} />
-            {!collapsed && <span className="text-sm font-medium">Support</span>}
-          </div>
-          <div
-            onClick={() => { logout(); navigate('/login'); }}
-            className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-4'} py-2 text-slate-500 hover:text-red-500 cursor-pointer transition-colors`}
-          >
-            <LogoutOutlined style={{ fontSize: '20px' }} />
-            {!collapsed && <span className="text-sm font-medium">Sign Out</span>}
-          </div>
-        </div>
-      </Sider>
-
-      <Layout className={collapsed ? 'md:ml-[80px]' : 'md:ml-[220px]'} style={{ transition: 'all 0.2s' }}>
-        <Header
-          style={{
-            padding: '0 24px',
-            background: 'white',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'sticky',
-            top: 0,
-            zIndex: 40,
-            height: '64px',
-          }}
-        >
-          <div className="flex items-center gap-4">
-            <Button
-              type="text"
-              icon={<MenuOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              className="md:hidden"
+          <div className="h-8 w-[1px] bg-slate-200"></div>
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+            <Avatar
+              size={40}
+              className="border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity shadow-sm"
             />
-            <div className="hidden sm:block">
-              <Input
-                placeholder="Search internships..."
-                prefix={<SearchOutlined className="text-slate-400" />}
-                className="w-72 rounded-full bg-slate-100 border-none h-10 focus:bg-white transition-all"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <div className="flex gap-2">
-              <Badge dot color="#4f46e5" offset={[-2, 2]}>
-                <Button type="text" icon={<BellOutlined />} className="text-slate-500 text-lg hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center" />
-              </Badge>
-              <Button type="text" icon={<SettingOutlined />} className="text-slate-500 text-lg hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center" />
-              <Button type="text" icon={<QuestionCircleOutlined />} className="text-slate-500 text-lg hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center" />
-            </div>
-            <div className="h-8 w-[1px] bg-slate-200 mx-2 hidden sm:block"></div>
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-              <Avatar
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ8YZQJW_B1YcOEvsZsTJZ8wP3IVeXX53I0OytNVaizwym4OoQHzolqUdgTHPvZ5PC6GXg0Eqij1niDo27dO6TuPr_yv7Dg1TGhE5-Jx43MCnibGVman0Idj7_QPhd74hc3mPLqVTb71moBojriLUOLqM1fbCE-rmRumBE4JdnJpBdK38WRzj_pooDPe3ukt4KDoYtTzKKyu_Yc77duEuJygdEmlyCBFsxOux6jeiAirWdAhqGSDiJOwma5qOETrYN20z0UimeTdI"
-                size={40}
-                className="border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity shadow-sm"
-              />
-            </Dropdown>
-          </div>
-        </Header>
-
-        <Content className="p-5 bg-slate-50 overflow-x-hidden">
-          <Outlet />
-        </Content>
-      </Layout>
-
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white flex justify-around items-center z-50 border-t border-slate-100 px-4">
-        <div className="flex flex-col items-center text-slate-400">
-          <DashboardOutlined style={{ fontSize: '20px' }} />
-          <span className="text-[10px] mt-1">Home</span>
+          </Dropdown>
         </div>
-        <div className="flex flex-col items-center text-primary font-bold">
-          <TeamOutlined style={{ fontSize: '20px' }} />
-          <span className="text-[10px] mt-1">Interns</span>
-        </div>
-        <div className="flex flex-col items-center text-slate-400">
-          <BarChartOutlined style={{ fontSize: '20px' }} />
-          <span className="text-[10px] mt-1">Reports</span>
-        </div>
-        <div className="flex flex-col items-center text-slate-400">
-          <SettingOutlined style={{ fontSize: '20px' }} />
-          <span className="text-[10px] mt-1">Settings</span>
-        </div>
-      </nav>
+      </Header>
 
-      <button className="fixed bottom-20 right-6 md:bottom-10 md:right-10 w-14 h-14 primary-gradient rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 duration-200 z-40">
-        <PlusCircleOutlined style={{ fontSize: '24px' }} />
-      </button>
+      <Content className="p-4 bg-slate-50 overflow-x-hidden min-h-[calc(100vh-64px)]">
+        <Outlet />
+      </Content>
     </Layout>
   );
 };
