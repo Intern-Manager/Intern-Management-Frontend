@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ConfigProvider } from 'antd';
 import './index.css';
@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')!).render(
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#3525cd',
+          colorPrimary: '#4f46e5',
           borderRadius: 8,
           fontFamily: 'Inter, sans-serif',
         },
