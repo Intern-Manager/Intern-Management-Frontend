@@ -7,6 +7,9 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
     LOGOUT: '/auth/logout',
   },
+  CAMPAIGNS: '/api/campaigns',
+  APPLICATIONS: '/api/applications',
+  INTERVIEWS: '/api/interviews',
 };
 
 export { BASE_URL };

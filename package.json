@@ -12,12 +12,15 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.2",
+    "@microsoft/signalr": "^10.0.0",
     "@tailwindcss/vite": "^4.3.0",
     "antd": "^6.3.7",
     "axios": "^1.16.0",
+    "dayjs": "^1.11.20",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.15.0",
+    "recharts": "^3.8.1",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

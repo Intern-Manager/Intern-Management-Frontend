@@ -35,9 +35,9 @@ const LandingPage = () => {
                 The ultimate enterprise-grade intern management system designed to streamline recruitment, automate roadmaps, and measure impact in real-time.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-4 rounded-xl primary-gradient text-white font-label-md text-label-md shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
-                  Start Your Transformation
-                </button>
+                <Link to="/campaigns" className="px-8 py-4 rounded-xl primary-gradient text-white font-label-md text-label-md shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all inline-flex items-center justify-center">
+                  Browse Open Internships
+                </Link>
                 <button className="px-8 py-4 rounded-xl bg-white border border-outline text-on-surface font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all">
                   <span className="material-symbols-outlined">play_circle</span>
                   Watch Showcase

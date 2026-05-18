@@ -4,9 +4,11 @@ import { CameraOutlined, MailOutlined, PhoneOutlined, CalendarOutlined, SafetyCe
 import { useParams } from 'react-router-dom';
 import { userService, UserProfile } from '../services/userService';
 import { message } from 'antd';
+import { useAuth } from '../contexts/AuthContext';
 
 const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
+  const { updateUser } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -23,8 +25,12 @@ const ProfilePage = () => {
     setLoading(true);
     try {
       const response = await userService.getProfile(parseInt(id));
+      // Update state first
       setProfile(response.data);
-      setAvatarKey(prev => prev + 1);
+      // Update auth context with new avatar URL (this persists to localStorage too)
+      updateUser({ avatarUrl: response.data.avatarUrl });
+      // Force avatar key change to trigger re-render
+      setAvatarKey(Date.now());
     } catch (error) {
       message.error('Failed to load profile');
     } finally {
@@ -34,11 +40,8 @@ const ProfilePage = () => {
 
   const getAvatarSrc = () => {
     if (!profile?.avatarUrl) return undefined;
-    if (profile.avatarUrl.startsWith('data:')) {
-      return profile.avatarUrl;
-    }
-    if (avatarKey === 0) return profile.avatarUrl;
-    return `${profile.avatarUrl}?_t=${avatarKey}`;
+    // Add cache buster to force refresh after upload
+    return `${profile.avatarUrl}${profile.avatarUrl.includes('?') ? '&' : '?'}_t=${Date.now()}`;
   };
 
   const handleAvatarChange = async (file: File) => {
@@ -50,10 +53,9 @@ const ProfilePage = () => {
         const base64 = e.target?.result as string;
         await userService.updateAvatar(parseInt(id), base64);
         message.success('Avatar updated successfully');
-        if (profile) {
-          setProfile({ ...profile, avatarUrl: base64 });
-        }
-        setAvatarKey(prev => prev + 1);
+        // Refetch profile to get the actual Cloudinary URL
+        await fetchProfile();
+        setUploading(false);
       };
       reader.onerror = () => {
         message.error('Failed to read file');

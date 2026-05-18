@@ -8,9 +8,13 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import PublicRoute from '../components/PublicRoute';
 import AdminDashboard from '../components/dashboard/AdminDashboard';
 import HRDashboard from '../components/dashboard/HRDashboard';
+import CampaignList from '../pages/CampaignList';
+import ApplyForm from '../pages/ApplyForm';
+import InternProfile from '../pages/InternProfile';
 import CoordinatorDashboard from '../components/dashboard/CoordinatorDashboard';
 import MentorDashboard from '../components/dashboard/MentorDashboard';
 import InternDashboard from '../components/dashboard/InternDashboard';
+import AnalyticsDashboard from '../pages/AnalyticsDashboard';
 import AccessDenied from '../pages/AccessDenied';
 import UnderDevelopment from '../pages/UnderDevelopment';
 import ProfilePage from '../pages/Profile';
@@ -20,6 +24,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/campaigns" element={<CampaignList />} />
+      <Route path="/campaigns/:id/apply" element={<ApplyForm />} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
@@ -28,15 +34,23 @@ const AppRoutes = () => {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<AdminDashboard />} />
         <Route path="/admin/departments" element={<AdminDashboard />} />
+        <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
         <Route path="/admin/config" element={<AdminDashboard />} />
         <Route path="/admin/logs" element={<AdminDashboard />} />
 
         {/* Other role dashboards */}
+        {/* HR Routes - all handled by HRDashboard with internal tabs */}
         <Route path="/hr/dashboard" element={<HRDashboard />} />
+        <Route path="/hr/campaigns" element={<HRDashboard />} />
+        <Route path="/hr/applications" element={<HRDashboard />} />
+        <Route path="/hr/interviews" element={<HRDashboard />} />
+        <Route path="/hr/analytics" element={<AnalyticsDashboard />} />
         <Route path="/hr/interns" element={<InternList />} />
         <Route path="/coordinator/dashboard" element={<CoordinatorDashboard />} />
         <Route path="/mentor/dashboard" element={<MentorDashboard />} />
         <Route path="/intern/dashboard" element={<InternDashboard />} />
+        <Route path="/intern/profile" element={<InternProfile />} />
+        <Route path="/intern/campaigns" element={<CampaignList />} />
 
         {/* Chat for Intern, Mentor, Coordinator */}
         <Route path="/chat" element={<Chat />} />

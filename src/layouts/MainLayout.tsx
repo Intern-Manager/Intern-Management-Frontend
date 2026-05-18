@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Button, Badge, Dropdown, Avatar } from 'antd';
 import {
   DashboardOutlined,
@@ -10,18 +10,43 @@ import {
   BuildOutlined,
   UserOutlined,
   MessageOutlined,
+  TeamOutlined,
+  CalendarOutlined,
+  FileTextOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const { Header, Content } = Layout;
 
-const headerTabs = [
+const adminTabs = [
   { key: '/admin/dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
   { key: '/admin/users', label: 'User Management', icon: <BuildOutlined /> },
-  { key: '/admin/departments', label: 'Departments', icon: <BuildOutlined /> },
+  { key: '/admin/departments', label: 'Departments', icon: <TeamOutlined /> },
   { key: '/admin/config', label: 'System Config', icon: <SettingOutlined /> },
   { key: '/admin/logs', label: 'Audit Log', icon: <HistoryOutlined /> },
+];
+
+const hrTabs = [
+  { key: '/hr/dashboard', label: 'Overview', icon: <DashboardOutlined /> },
+  { key: '/hr/campaigns', label: 'Campaigns', icon: <AppstoreOutlined /> },
+  { key: '/hr/applications', label: 'Applications', icon: <FileTextOutlined /> },
+  { key: '/hr/interviews', label: 'Interviews', icon: <CalendarOutlined /> },
+];
+
+const coordinatorTabs = [
+  { key: '/coordinator/dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
+];
+
+const mentorTabs = [
+  { key: '/mentor/dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
+];
+
+const internTabs = [
+  { key: '/intern/dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
+  { key: '/intern/profile', label: 'My Profile', icon: <UserOutlined /> },
+  { key: '/intern/campaigns', label: 'Campaigns', icon: <TeamOutlined /> },
 ];
 
 const chatTab = { key: '/chat', label: 'Chat', icon: <MessageOutlined /> };
@@ -30,12 +55,44 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [avatarRefreshKey, setAvatarRefreshKey] = useState(0);
 
-  // Determine active tab based on current path
-  const activeTab = headerTabs.find(tab => location.pathname.startsWith(tab.key))?.key || '/admin/dashboard';
+  // Force re-render when avatar changes
+  useEffect(() => {
+    if (user?.avatarUrl) {
+      setAvatarRefreshKey(k => k + 1);
+    }
+  }, [user?.avatarUrl]);
 
-  // Show chat tab for Intern, Mentor, and Coordinator roles (3, 4, 5)
-  const showChatTab = user && [3, 4, 5].includes(user.roleId);
+  const getRoleTabs = () => {
+    if (!user) return adminTabs;
+    switch (user.roleId) {
+      case 1: return adminTabs;
+      case 2: return mentorTabs;
+      case 3: return internTabs;
+      case 4: return hrTabs;
+      case 5: return coordinatorTabs;
+      default: return adminTabs;
+    }
+  };
+
+  // Get dashboard URL based on user role - always navigates to correct dashboard
+  const getDashboardUrl = () => {
+    if (!user) return '/admin/dashboard';
+    switch (user.roleId) {
+      case 1: return '/admin/dashboard';
+      case 2: return '/mentor/dashboard';
+      case 3: return '/intern/dashboard';
+      case 4: return '/hr/dashboard';
+      case 5: return '/coordinator/dashboard';
+      default: return '/admin/dashboard';
+    }
+  };
+
+  const headerTabs = getRoleTabs();
+  const activeTab = headerTabs.find(tab => location.pathname.startsWith(tab.key))?.key ?? headerTabs[0]?.key;
+
+  const showChatTab = user && [2, 3, 5].includes(user.roleId);
 
   const userMenuItems = [
     {
@@ -77,7 +134,7 @@ const MainLayout = () => {
         <div className="flex items-center">
           <div
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate('/admin/dashboard')}
+            onClick={() => navigate(getDashboardUrl())}
           >
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-white font-black text-lg">I</span>
@@ -131,6 +188,8 @@ const MainLayout = () => {
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
             <Avatar
               size={40}
+              src={user?.avatarUrl ? `${user.avatarUrl}${user.avatarUrl.includes('?') ? '&' : '?'}_r=${avatarRefreshKey}` : undefined}
+              icon={<UserOutlined />}
               className="border-2 border-primary cursor-pointer hover:opacity-80 transition-opacity shadow-sm"
             />
           </Dropdown>

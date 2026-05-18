@@ -33,6 +33,7 @@ const Login = () => {
           roleId: data.roleId,
           status: data.status,
           emailVerified: data.emailVerified,
+          avatarUrl: data.avatarUrl,
         },
         data.tokens.accessToken,
         data.tokens.refreshToken

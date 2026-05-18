@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Row, Col, Avatar, Tag, Button, Typography, Progress,
-  Table, Input, Select, Form, Switch, Drawer, Timeline
+  Table, Input, Select, Form, Switch, Drawer, Timeline,
+  Modal, message, Popconfirm, Pagination
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useLocation } from 'react-router-dom';
@@ -9,11 +10,14 @@ import {
   UserOutlined, SafetyCertificateOutlined,
   TeamOutlined, ArrowUpOutlined, ArrowDownOutlined,
   PlusOutlined, SearchOutlined, EditOutlined,
-  LockOutlined, UnlockOutlined, KeyOutlined,
+  LockOutlined, KeyOutlined,
   TeamOutlined as DepartmentOutlined, TrophyOutlined,
   CheckCircleOutlined, ClockCircleOutlined, WarningOutlined, FilterOutlined,
-  ReloadOutlined, EyeOutlined, MoreOutlined, UserAddOutlined
+  ReloadOutlined, EyeOutlined, UserAddOutlined, DeleteOutlined
 } from '@ant-design/icons';
+import { userService, UserListItem } from '../../services/userService';
+import { roleService, Role } from '../../services/roleService';
+import { departmentService, Department, CreateDepartmentData, UpdateDepartmentData } from '../../services/departmentService';
 
 const { Title, Text } = Typography;
 
@@ -21,27 +25,6 @@ const { Title, Text } = Typography;
 interface AdminDashboardProps {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
-}
-
-interface User {
-  key: string;
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  department: string;
-  status: 'active' | 'inactive' | 'locked';
-  joinDate: string;
-  avatar?: string;
-}
-
-interface Department {
-  key: string;
-  name: string;
-  head: string;
-  memberCount: number;
-  internCount: number;
-  status: 'active' | 'inactive';
 }
 
 interface AuditLog {
@@ -63,23 +46,6 @@ interface EvaluationCriteria {
 }
 
 // Mock Data
-const mockUsers: User[] = [
-  { key: '1', id: 'USR001', name: 'Sarah Chen', email: 'sarah.chen@company.com', role: 'Admin', department: 'IT', status: 'active', joinDate: '2024-01-15', avatar: 'https://i.pravatar.cc/150?u=sarah' },
-  { key: '2', id: 'USR002', name: 'Michael Park', email: 'michael.p@company.com', role: 'HR Manager', department: 'HR', status: 'active', joinDate: '2024-03-20', avatar: 'https://i.pravatar.cc/150?u=michael' },
-  { key: '3', id: 'USR003', name: 'Emily Wong', email: 'emily.w@company.com', role: 'Mentor', department: 'Design', status: 'active', joinDate: '2024-02-10', avatar: 'https://i.pravatar.cc/150?u=emily' },
-  { key: '4', id: 'USR004', name: 'David Kim', email: 'david.k@company.com', role: 'Coordinator', department: 'Operations', status: 'inactive', joinDate: '2024-05-01', avatar: 'https://i.pravatar.cc/150?u=david' },
-  { key: '5', id: 'USR005', name: 'Lisa Tran', email: 'lisa.t@company.com', role: 'Intern', department: 'Marketing', status: 'locked', joinDate: '2024-06-15', avatar: 'https://i.pravatar.cc/150?u=lisa' },
-  { key: '6', id: 'USR006', name: 'James Lee', email: 'james.l@company.com', role: 'Intern', department: 'Design', status: 'active', joinDate: '2024-07-01', avatar: 'https://i.pravatar.cc/150?u=james' },
-];
-
-const mockDepartments: Department[] = [
-  { key: '1', name: 'Engineering', head: 'John Smith', memberCount: 45, internCount: 12, status: 'active' },
-  { key: '2', name: 'Design', head: 'Sarah Chen', memberCount: 18, internCount: 8, status: 'active' },
-  { key: '3', name: 'Marketing', head: 'Mike Johnson', memberCount: 22, internCount: 6, status: 'active' },
-  { key: '4', name: 'HR', head: 'Lisa Brown', memberCount: 8, internCount: 2, status: 'active' },
-  { key: '5', name: 'Operations', head: 'Tom Wilson', memberCount: 15, internCount: 4, status: 'inactive' },
-];
-
 const mockAuditLogs: AuditLog[] = [
   { key: '1', user: 'Admin_Root', action: 'Modified User Role', target: 'user:david.k@company.com', time: '2 mins ago', type: 'security', ip: '192.168.1.105' },
   { key: '2', user: 'HR_Director', action: 'Bulk Uploaded Interns', target: 'batch:#2024-089', time: '15 mins ago', type: 'data', ip: '192.168.1.110' },
@@ -98,19 +64,287 @@ const mockCriteria: EvaluationCriteria[] = [
   { key: '6', name: 'Initiative', weight: 10, category: 'Performance', status: 'inactive' },
 ];
 
-const roleOptions = [
-  { label: 'Admin', value: 'Admin', color: '#dc2626' },
-  { label: 'HR Manager', value: 'HR Manager', color: '#7c3aed' },
-  { label: 'Mentor', value: 'Mentor', color: '#2563eb' },
-  { label: 'Coordinator', value: 'Coordinator', color: '#0891b2' },
-  { label: 'Intern', value: 'Intern', color: '#059669' },
-];
-
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab: activeTabProp }) => {
   const location = useLocation();
   const [userDrawerVisible, setUserDrawerVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
   const [userForm] = Form.useForm();
+  const [createForm] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+
+  // User Management State
+  const [users, setUsers] = useState<UserListItem[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchText, setSearchText] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>();
+  const [filterRoleId, setFilterRoleId] = useState<number>();
+  const [loading, setLoading] = useState(false);
+
+  // Department Management State
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [deptSearchText, setDeptSearchText] = useState('');
+  const [deptFilterStatus, setDeptFilterStatus] = useState<string>();
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [deptDrawerVisible, setDeptDrawerVisible] = useState(false);
+  const [deptModalVisible, setDeptModalVisible] = useState(false);
+  const [deptForm] = Form.useForm();
+
+  // Fetch users from API
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const { data } = await userService.getUsers({
+        page: currentPage,
+        pageSize,
+        search: searchText || undefined,
+        status: filterStatus,
+        roleId: filterRoleId,
+      });
+      setUsers(data.items);
+      setTotalUsers(data.totalCount);
+    } catch {
+      messageApi.error('Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch departments from API
+  const fetchDepartments = async () => {
+    try {
+      const { data } = await departmentService.getDepartments({
+        page: 1,
+        pageSize: 100,
+        search: deptSearchText || undefined,
+        status: deptFilterStatus,
+      });
+      setDepartments(data.items);
+    } catch {
+      messageApi.error('Failed to load departments');
+    }
+  };
+
+  // Fetch roles for dropdown
+  const fetchRoles = async () => {
+    try {
+      const { data } = await roleService.getRoles();
+      setRoles(data);
+    } catch {
+      messageApi.error('Failed to load roles');
+    }
+  };
+
+  // Department CRUD handlers
+  const handleCreateDepartment = async (values: CreateDepartmentData) => {
+    try {
+      await departmentService.createDepartment(values);
+      messageApi.success('Department created successfully');
+      setDeptModalVisible(false);
+      deptForm.resetFields();
+      fetchDepartments();
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      messageApi.error(error.response?.data?.message || 'Failed to create department');
+    }
+  };
+
+  const handleUpdateDepartment = async (values: UpdateDepartmentData) => {
+    if (!selectedDepartment) return;
+    
+    // Pre-check: verify department still exists before update
+    try {
+      await departmentService.getDepartment(selectedDepartment.departmentId);
+    } catch {
+      messageApi.error('Department no longer exists. Refreshing list...');
+      fetchDepartments();
+      setDeptDrawerVisible(false);
+      return;
+    }
+    
+    try {
+      const response = await departmentService.updateDepartment(selectedDepartment.departmentId, values);
+      if (response.status === 200 || response.status === 204) {
+        messageApi.success('Department updated successfully');
+        setDeptDrawerVisible(false);
+        fetchDepartments();
+      }
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number; data?: { message?: string } } };
+      if (error.response?.status === 404) {
+        messageApi.error('Department not found. Refreshing list...');
+        fetchDepartments();
+        setDeptDrawerVisible(false);
+      } else {
+        messageApi.error(error.response?.data?.message || 'Failed to update department');
+      }
+    }
+  };
+
+  const handleDeleteDepartment = async (id: number) => {
+    try {
+      await departmentService.deleteDepartment(id);
+      messageApi.success('Department deleted successfully');
+      fetchDepartments();
+    } catch {
+      messageApi.error('Failed to delete department');
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage, pageSize, searchText, filterStatus, filterRoleId]);
+
+  useEffect(() => {
+    fetchDepartments();
+  }, [deptSearchText, deptFilterStatus]);
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  // CRUD Handlers
+  const handleCreateUser = async (values: { fullName: string; email: string; password: string; roleId: number; phone?: string }) => {
+    try {
+      await userService.createUser(values);
+      messageApi.success('User created successfully');
+      setCreateModalVisible(false);
+      createForm.resetFields();
+      fetchUsers();
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      messageApi.error(error.response?.data?.message || 'Failed to create user');
+    }
+  };
+
+  const handleUpdateUser = async (values: { fullName?: string; phone?: string; roleId?: number; status?: string }) => {
+    if (!selectedUser) return;
+    try {
+      await userService.updateProfile(selectedUser.userId, values);
+      messageApi.success('User updated successfully');
+      setUserDrawerVisible(false);
+      fetchUsers();
+    } catch {
+      messageApi.error('Failed to update user');
+    }
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    try {
+      await userService.deleteUser(userId);
+      messageApi.success('User deleted successfully');
+      fetchUsers();
+    } catch {
+      messageApi.error('Failed to delete user');
+    }
+  };
+
+  // Convert roleId to roleName for display
+  const getRoleName = (roleId: number) => {
+    const role = roles.find(r => r.roleId === roleId);
+    return role?.roleName || `Role ${roleId}`;
+  };
+
+  // Table columns for real API data
+  const userColumns: ColumnsType<UserListItem> = [
+    {
+      title: 'User',
+      key: 'user',
+      render: (_, record) => (
+        <div className="flex items-center gap-3">
+          <Avatar src={record.avatarUrl} icon={<UserOutlined />} />
+          <div>
+            <Text strong className="block">{record.fullName}</Text>
+            <Text type="secondary" className="text-xs">{record.email}</Text>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Role',
+      key: 'role',
+      render: (_, record) => {
+        const roleName = getRoleName(record.roleId);
+        const roleColors: Record<string, string> = {
+          'Admin': '#dc2626', 'HR Manager': '#7c3aed', 'Mentor': '#2563eb',
+          'Coordinator': '#0891b2', 'Intern': '#059669',
+        };
+        return <Tag color={roleColors[roleName]} className="rounded-full font-medium">{roleName}</Tag>;
+      },
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => {
+        const statusConfig: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
+          Active: { color: 'success', icon: <CheckCircleOutlined />, text: 'Active' },
+          Inactive: { color: 'default', icon: <ClockCircleOutlined />, text: 'Inactive' },
+          Locked: { color: 'error', icon: <LockOutlined />, text: 'Locked' },
+        };
+        const config = statusConfig[status] || statusConfig.Inactive;
+        return <Tag color={config.color} icon={config.icon} className="rounded-full">{config.text}</Tag>;
+      },
+    },
+    {
+      title: 'Joined',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date) => <Text type="secondary" className="text-sm">{new Date(date).toLocaleDateString()}</Text>,
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <div className="flex gap-1">
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
+            size="small"
+            onClick={() => {
+              setSelectedUser(record);
+              userForm.setFieldsValue({
+                fullName: record.fullName,
+                email: record.email,
+                phone: record.phone,
+                roleId: record.roleId,
+                status: record.status,
+              });
+              setUserDrawerVisible(true);
+            }}
+          />
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            size="small"
+            onClick={() => {
+              setSelectedUser(record);
+              userForm.setFieldsValue({
+                fullName: record.fullName,
+                email: record.email,
+                phone: record.phone,
+                roleId: record.roleId,
+                status: record.status,
+              });
+              setUserDrawerVisible(true);
+            }}
+          />
+          <Popconfirm
+            title="Delete this user?"
+            description="This action cannot be undone."
+            onConfirm={() => handleDeleteUser(record.userId)}
+            okText="Delete"
+            okButtonProps={{ danger: true }}
+          >
+            <Button type="text" icon={<DeleteOutlined />} size="small" danger />
+          </Popconfirm>
+        </div>
+      ),
+    },
+  ];
 
   // Determine active tab based on current path or props
   const getActiveTab = () => {
@@ -136,88 +370,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab: activeTabPro
     { label: 'Completed', value: 76, color: '#059669' },
     { label: 'In Progress', value: 18, color: '#0891b2' },
     { label: 'Not Started', value: 6, color: '#94a3b8' },
-  ];
-
-  // User Table Columns
-  const userColumns: ColumnsType<User> = [
-    {
-      title: 'User',
-      key: 'user',
-      render: (_, record) => (
-        <div className="flex items-center gap-3">
-          <Avatar src={record.avatar} icon={<UserOutlined />} />
-          <div>
-            <Text strong className="block">{record.name}</Text>
-            <Text type="secondary" className="text-xs">{record.email}</Text>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      render: (text) => <Text code className="text-xs">{text}</Text>,
-    },
-    {
-      title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
-      render: (role) => {
-        const roleData = roleOptions.find(r => r.value === role);
-        return <Tag color={roleData?.color} className="rounded-full font-medium">{role}</Tag>;
-      },
-    },
-    {
-      title: 'Department',
-      dataIndex: 'department',
-      key: 'department',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const statusConfig: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
-          active: { color: 'success', icon: <CheckCircleOutlined />, text: 'Active' },
-          inactive: { color: 'default', icon: <ClockCircleOutlined />, text: 'Inactive' },
-          locked: { color: 'error', icon: <LockOutlined />, text: 'Locked' },
-        };
-        const config = statusConfig[status];
-        return <Tag color={config.color} icon={config.icon} className="rounded-full">{config.text}</Tag>;
-      },
-    },
-    {
-      title: 'Join Date',
-      dataIndex: 'joinDate',
-      key: 'joinDate',
-      render: (date) => <Text type="secondary" className="text-sm">{date}</Text>,
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <div className="flex gap-1">
-          <Button
-            type="text"
-            icon={<EyeOutlined />}
-            size="small"
-            onClick={() => {
-              setSelectedUser(record);
-              userForm.setFieldsValue(record);
-              setUserDrawerVisible(true);
-            }}
-          />
-          <Button type="text" icon={<EditOutlined />} size="small" />
-          {record.status === 'locked' ? (
-            <Button type="text" icon={<UnlockOutlined />} size="small" danger />
-          ) : (
-            <Button type="text" icon={<LockOutlined />} size="small" />
-          )}
-          <Button type="text" icon={<KeyOutlined />} size="small" />
-        </div>
-      ),
-    },
   ];
 
   // Render Dashboard Tab
@@ -344,49 +496,232 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab: activeTabPro
               placeholder="Search users..."
               prefix={<SearchOutlined className="text-gray-400" />}
               className="w-64 rounded-xl"
+              allowClear
+              onChange={(e) => setSearchText(e.target.value)}
             />
-            <Select placeholder="Filter by Role" className="w-40" allowClear>
-              {roleOptions.map(role => (
-                <Select.Option key={role.value} value={role.value}>{role.label}</Select.Option>
+            <Select
+              placeholder="Filter by Role"
+              className="w-40"
+              allowClear
+              onChange={(value) => setFilterRoleId(value as number | undefined)}
+              value={filterRoleId}
+            >
+              {roles.map(role => (
+                <Select.Option key={role.roleId} value={role.roleId}>{role.roleName}</Select.Option>
               ))}
             </Select>
-            <Select placeholder="Filter by Status" className="w-36" allowClear>
-              <Select.Option value="active">Active</Select.Option>
-              <Select.Option value="inactive">Inactive</Select.Option>
-              <Select.Option value="locked">Locked</Select.Option>
+            <Select
+              placeholder="Filter by Status"
+              className="w-36"
+              allowClear
+              onChange={(value) => setFilterStatus(value as string | undefined)}
+              value={filterStatus}
+            >
+              <Select.Option value="Active">Active</Select.Option>
+              <Select.Option value="Inactive">Inactive</Select.Option>
             </Select>
           </div>
-          <Button type="primary" icon={<UserAddOutlined />} className="primary-gradient border-none rounded-xl">
+          <Button
+            type="primary"
+            icon={<UserAddOutlined />}
+            className="primary-gradient border-none rounded-xl"
+            onClick={() => setCreateModalVisible(true)}
+          >
             Add User
           </Button>
         </div>
 
         <Table
           columns={userColumns}
-          dataSource={mockUsers}
-          pagination={{ pageSize: 5 }}
+          dataSource={users}
+          loading={loading}
+          pagination={false}
+          rowKey="userId"
           className="admin-table"
         />
+
+        {totalUsers > pageSize && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={totalUsers}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              showSizeChanger
+              showTotal={(total) => `Total ${total} users`}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Create User Modal */}
+      <Modal
+        title="Create New User"
+        open={createModalVisible}
+        onCancel={() => {
+          setCreateModalVisible(false);
+          createForm.resetFields();
+        }}
+        footer={null}
+      >
+        <Form
+          form={createForm}
+          layout="vertical"
+          onFinish={handleCreateUser}
+        >
+          <Form.Item
+            name="fullName"
+            label="Full Name"
+            rules={[{ required: true, message: 'Please enter full name' }]}
+          >
+            <Input placeholder="Enter full name" />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: 'Please enter email' },
+              { type: 'email', message: 'Please enter a valid email' },
+            ]}
+          >
+            <Input placeholder="Enter email address" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              { required: true, message: 'Please enter password' },
+              { min: 6, message: 'Password must be at least 6 characters' },
+            ]}
+          >
+            <Input.Password placeholder="Enter password" />
+          </Form.Item>
+          <Form.Item
+            name="roleId"
+            label="Role"
+            rules={[{ required: true, message: 'Please select a role' }]}
+          >
+            <Select placeholder="Select role">
+              {roles.map(role => (
+                <Select.Option key={role.roleId} value={role.roleId}>{role.roleName}</Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="phone" label="Phone">
+            <Input placeholder="Enter phone number (optional)" />
+          </Form.Item>
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setCreateModalVisible(false)}>Cancel</Button>
+            <Button type="primary" htmlType="submit" className="primary-gradient border-none">
+              Create User
+            </Button>
+          </div>
+        </Form>
+      </Modal>
+
+      {/* User Detail Drawer */}
+      <Drawer
+        title="User Details"
+        placement="right"
+        size="default"
+        onClose={() => setUserDrawerVisible(false)}
+        open={userDrawerVisible}
+      >
+        {selectedUser && (
+          <Form
+            form={userForm}
+            layout="vertical"
+            onFinish={handleUpdateUser}
+          >
+            <div className="flex justify-center mb-6">
+              <Avatar size={80} src={selectedUser.avatarUrl} icon={<UserOutlined />} />
+            </div>
+            <Form.Item label="Full Name" name="fullName">
+              <Input />
+            </Form.Item>
+            <Form.Item label="Email" name="email">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item label="Phone" name="phone">
+              <Input />
+            </Form.Item>
+            <Form.Item label="Role" name="roleId">
+              <Select>
+                {roles.map(role => (
+                  <Select.Option key={role.roleId} value={role.roleId}>{role.roleName}</Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item label="Status" name="status">
+              <Select>
+                <Select.Option value="Active">Active</Select.Option>
+                <Select.Option value="Inactive">Inactive</Select.Option>
+              </Select>
+            </Form.Item>
+            <div className="flex gap-2 mt-6">
+              <Button
+                icon={<KeyOutlined />}
+                block
+                onClick={() => messageApi.info('Password reset feature coming soon')}
+              >
+                Reset Password
+              </Button>
+              <Button type="primary" htmlType="submit" icon={<EditOutlined />} block className="primary-gradient border-none">
+                Update
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Drawer>
     </div>
   );
-
-  // Render Department Management Tab
   const renderDepartmentManagement = () => (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap gap-3 justify-between items-center">
         <div>
           <Title level={4} className="mb-1">Department Management</Title>
           <Text type="secondary">Manage departments and teams</Text>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} className="primary-gradient border-none rounded-xl">
-          Add Department
-        </Button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <Input
+            placeholder="Search departments..."
+            prefix={<SearchOutlined className="text-gray-400" />}
+            className="w-56 rounded-xl"
+            value={deptSearchText}
+            onChange={(e) => setDeptSearchText(e.target.value)}
+            allowClear
+          />
+          <Select
+            placeholder="Filter by Status"
+            className="w-36"
+            allowClear
+            value={deptFilterStatus}
+            onChange={setDeptFilterStatus}
+          >
+            <Select.Option value="Active">Active</Select.Option>
+            <Select.Option value="Inactive">Inactive</Select.Option>
+          </Select>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            className="primary-gradient border-none rounded-xl"
+            onClick={() => {
+              deptForm.resetFields();
+              setSelectedDepartment(null);
+              setDeptModalVisible(true);
+            }}
+          >
+            Add Department
+          </Button>
+        </div>
       </div>
 
       <Row gutter={[16, 16]}>
-        {mockDepartments.map((dept) => (
-          <Col xs={24} sm={12} lg={8} key={dept.key}>
+        {departments.map((dept) => (
+          <Col xs={24} sm={12} lg={8} key={dept.departmentId}>
             <div className="glass-card p-5 rounded-2xl border border-white/50 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -394,12 +729,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab: activeTabPro
                     <DepartmentOutlined className="text-primary text-xl" />
                   </div>
                   <div>
-                    <Title level={5} className="mb-0">{dept.name}</Title>
-                    <Text type="secondary" className="text-xs">Head: {dept.head}</Text>
+                    <Title level={5} className="mb-0">{dept.departmentName}</Title>
+                    <Text type="secondary" className="text-xs">Head: {dept.headUserName || 'N/A'}</Text>
                   </div>
                 </div>
-                <Tag color={dept.status === 'active' ? 'success' : 'default'} className="rounded-full">
-                  {dept.status === 'active' ? 'Active' : 'Inactive'}
+                <Tag color={dept.status === 'Active' ? 'success' : 'default'} className="rounded-full">
+                  {dept.status}
                 </Tag>
               </div>
               <div className="flex justify-between pt-3 border-t border-gray-100">
@@ -412,14 +747,112 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab: activeTabPro
                   <Text type="secondary" className="text-xs">Interns</Text>
                 </div>
                 <div className="flex gap-1">
-                  <Button type="text" size="small" icon={<EditOutlined />} />
-                  <Button type="text" size="small" icon={<MoreOutlined />} />
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setSelectedDepartment(dept);
+                      deptForm.setFieldsValue({
+                        departmentName: dept.departmentName,
+                        description: dept.description,
+                        headUserId: dept.headUserId,
+                        status: dept.status,
+                      });
+                      setDeptDrawerVisible(true);
+                    }}
+                  />
+                  <Popconfirm
+                    title="Delete this department?"
+                    description="This action cannot be undone."
+                    onConfirm={() => handleDeleteDepartment(dept.departmentId)}
+                    okText="Delete"
+                    okButtonProps={{ danger: true }}
+                  >
+                    <Button type="text" size="small" icon={<DeleteOutlined />} danger />
+                  </Popconfirm>
                 </div>
               </div>
             </div>
           </Col>
         ))}
       </Row>
+
+      {/* Create Department Modal */}
+      <Modal
+        title="Add New Department"
+        open={deptModalVisible}
+        onCancel={() => setDeptModalVisible(false)}
+        footer={null}
+        className="rounded-2xl"
+      >
+        <Form
+          form={deptForm}
+          layout="vertical"
+          onFinish={handleCreateDepartment}
+          className="mt-4"
+        >
+          <Form.Item
+            label="Department Name"
+            name="departmentName"
+            rules={[{ required: true, message: 'Please enter department name' }]}
+          >
+            <Input placeholder="e.g., Engineering" />
+          </Form.Item>
+          <Form.Item label="Description" name="description">
+            <Input.TextArea rows={3} placeholder="Department description..." />
+          </Form.Item>
+          <Form.Item label="Status" name="status" initialValue="Active">
+            <Select>
+              <Select.Option value="Active">Active</Select.Option>
+              <Select.Option value="Inactive">Inactive</Select.Option>
+            </Select>
+          </Form.Item>
+          <div className="flex gap-2 mt-6">
+            <Button block onClick={() => setDeptModalVisible(false)}>Cancel</Button>
+            <Button type="primary" htmlType="submit" className="primary-gradient border-none" block>
+              Create
+            </Button>
+          </div>
+        </Form>
+      </Modal>
+
+      {/* Edit Department Drawer */}
+      <Drawer
+        title="Edit Department"
+        open={deptDrawerVisible}
+        onClose={() => setDeptDrawerVisible(false)}
+        size="default"
+      >
+        {selectedDepartment && (
+          <Form
+            form={deptForm}
+            layout="vertical"
+            onFinish={handleUpdateDepartment}
+            className="mt-4"
+          >
+            <Form.Item
+              label="Department Name"
+              name="departmentName"
+              rules={[{ required: true, message: 'Please enter department name' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item label="Description" name="description">
+              <Input.TextArea rows={3} />
+            </Form.Item>
+            <Form.Item label="Status" name="status">
+              <Select>
+                <Select.Option value="Active">Active</Select.Option>
+                <Select.Option value="Inactive">Inactive</Select.Option>
+              </Select>
+            </Form.Item>
+            <Button type="primary" htmlType="submit" className="primary-gradient border-none mt-4" block>
+              Update
+            </Button>
+          </Form>
+        )}
+      </Drawer>
     </div>
   );
 
@@ -556,67 +989,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab: activeTabPro
 
   return (
     <div className="pb-10">
-      {/* Role Quick Access Bar */}
-      {/* <div className="flex flex-wrap gap-2 p-3 bg-white rounded-2xl shadow-sm border border-gray-100 mb-4">
-        <span className="text-sm font-semibold text-gray-500 mr-2 self-center">Quick Access:</span>
-        {['Admin', 'HR Manager', 'Mentor', 'Coordinator', 'Intern'].map((role) => (
-          <Button
-            key={role}
-            size="small"
-            className="rounded-lg"
-            type="default"
-          >
-            {role}
-          </Button>
-        ))}
-      </div> */}
-
+      {contextHolder}
       {/* Tabs - Now rendered in Header */}
       {activeTab === 'dashboard' && renderDashboard()}
       {activeTab === 'users' && renderUserManagement()}
       {activeTab === 'departments' && renderDepartmentManagement()}
       {activeTab === 'config' && renderSystemConfig()}
       {activeTab === 'logs' && renderAuditLog()}
-
-      {/* User Detail Drawer */}
-      <Drawer
-        title="User Details"
-        placement="right"
-        size="default"
-        onClose={() => setUserDrawerVisible(false)}
-        open={userDrawerVisible}
-      >
-        {selectedUser && (
-          <Form form={userForm} layout="vertical">
-            <div className="flex justify-center mb-6">
-              <Avatar size={80} src={selectedUser.avatar} icon={<UserOutlined />} />
-            </div>
-            <Form.Item label="Full Name" name="name">
-              <Input />
-            </Form.Item>
-            <Form.Item label="Email" name="email">
-              <Input />
-            </Form.Item>
-            <Form.Item label="Role" name="role">
-              <Select options={roleOptions} />
-            </Form.Item>
-            <Form.Item label="Department" name="department">
-              <Select options={mockDepartments.map(d => ({ label: d.name, value: d.name }))} />
-            </Form.Item>
-            <Form.Item label="Status" name="status">
-              <Select>
-                <Select.Option value="active">Active</Select.Option>
-                <Select.Option value="inactive">Inactive</Select.Option>
-                <Select.Option value="locked">Locked</Select.Option>
-              </Select>
-            </Form.Item>
-            <div className="flex gap-2 mt-6">
-              <Button icon={<KeyOutlined />} block>Reset Password</Button>
-              <Button type="primary" icon={<EditOutlined />} block>Update</Button>
-            </div>
-          </Form>
-        )}
-      </Drawer>
     </div>
   );
 };
