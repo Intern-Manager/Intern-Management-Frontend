@@ -73,7 +73,7 @@ const Register = () => {
               onFinish={onFinish}
               requiredMark={false}
               size="large"
-              initialValues={{ roleId: 5 }}
+              initialValues={{ roleId: 3 }}
             >
               <Form.Item
                 label="Full Name"
@@ -171,11 +171,11 @@ const Register = () => {
                   size="large"
                   className="rounded-xl"
                   options={[
-                    { label: 'Intern', value: 5 },
-                    { label: 'Mentor', value: 4 },
-                    { label: 'Coordinator', value: 3 },
-                    { label: 'HR Manager', value: 2 },
                     { label: 'Admin', value: 1 },
+                    { label: 'Mentor', value: 2 },
+                    { label: 'Intern', value: 3 },
+                    { label: 'HR Manager', value: 4 },
+                    { label: 'Coordinator', value: 5 },
                   ]}
                 />
               </Form.Item>

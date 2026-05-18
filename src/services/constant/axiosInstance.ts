@@ -56,3 +56,4 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
+export const api = axiosInstance;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import  { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { authService } from '../services/authService';
 
 const STORAGE_KEY = 'auth_user';
@@ -7,10 +7,10 @@ const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 
 export const ROLE_ROUTES: Record<number, string> = {
   1: '/admin/dashboard',
-  2: '/hr/dashboard',
-  3: '/coordinator/dashboard',
-  4: '/mentor/dashboard',
-  5: '/intern/dashboard',
+  2: '/mentor/dashboard',
+  3: '/intern/dashboard',
+  4: '/hr/dashboard',
+  5: '/coordinator/dashboard',
 };
 
 export interface User {
@@ -20,6 +20,7 @@ export interface User {
   roleId: number;
   status: string;
   emailVerified: boolean;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextValue {
@@ -29,6 +30,7 @@ interface AuthContextValue {
   login: (userData: User, accessToken: string, refreshTokenValue: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -83,8 +85,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     removeStored(REFRESH_TOKEN_KEY);
   }, []);
 
+  const updateUser = useCallback((userData: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const updated = { ...prev, ...userData };
+      setStored(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, refreshToken, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, refreshToken, login, logout, isAuthenticated: !!token, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
